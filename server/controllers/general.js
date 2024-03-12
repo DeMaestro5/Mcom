@@ -20,7 +20,7 @@ export const getDashboardStats = async (req, res) => {
     const currentDay = '2021-11-15';
 
     // recent Transactions
-    const transactions = await Transaction.find()
+    const transactions = await Transaction.find({ userId: req.userId })
       .limit(50)
       .sort({ createdOn: -1 });
 
