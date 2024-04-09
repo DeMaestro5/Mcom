@@ -11,7 +11,7 @@ import managementRoutes from './routes/management.js';
 import salesRoutes from './routes/sales.js';
 import { registerRoutes } from './routes/register.js';
 import { loginRoutes } from './routes/login.js';
-import { ProfilePictureRoutes } from './routes/updateProfilePicture.js';
+
 import cookieParser from 'cookie-parser';
 
 // data imports
@@ -44,7 +44,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3001'],
     credentials: true,
     methods: ['GET', 'POST'],
   })
@@ -59,7 +59,7 @@ app.use('/management', managementRoutes);
 app.use('/sales', salesRoutes);
 app.use('/register', registerRoutes);
 app.use('/login', loginRoutes);
-app.use('/updatePicture', ProfilePictureRoutes);
+
 app.use('/auth', verifyToken, async (req, res) => {
   const existingUser = await User.findById(req.userId);
   return res.json({ status: true, user: existingUser });

@@ -20,12 +20,15 @@
     "axios": "^1.6.7",
     "countries-list": "^3.1.0",
     "country-iso-2-to-3": "^1.1.0",
+    "firebase": "^10.10.0",
+    "framer-motion": "^11.0.25",
     "react": "^18.2.0",
     "react-datepicker": "^4.8.0",
     "react-dom": "^18.2.0",
     "react-redux": "^9.0.4",
-    "react-router-dom": "^6.21.1",
+    "react-router-dom": "^6.22.3",
     "react-scripts": "5.0.1",
+    "uuid": "^9.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

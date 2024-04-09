@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LightModeOutlined,
   DarkModeOutlined,
   Menu as MenuIcon,
   Search,
   SettingsOutlined,
-  ArrowDropDownOutlined,
 } from '@mui/icons-material';
 import FlexBetween from 'components/FlexBetween';
 import { useDispatch } from 'react-redux';
 import { setMode } from 'state';
-import ProfileImage from 'assets/profile.jpeg';
-import ProfilePictureUpload from 'components/uploadProfilePicture';
 import {
   AppBar,
   Box,
@@ -24,15 +21,58 @@ import {
   Toolbar,
   useTheme,
 } from '@mui/material';
+import FirebaseImageUpload from 'firebaseImage/firebaseImageUpload';
+import Logout from 'pages/Logout';
 
 const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const isOpen = Boolean(anchorEl);
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const [uploadAnchorEl, setUploadAnchorEl] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState('');
+
+  useEffect(() => {
+    // Check if profile image URL exists in local storage
+    const storedImageUrl = localStorage.getItem('profileImageUrl');
+    if (storedImageUrl) {
+      setProfileImageUrl(storedImageUrl);
+    }
+
+    // Event listener to close upload input when clicking outside of it
+    const handleClickOutside = (event) => {
+      if (!uploadAnchorEl?.contains(event.target)) {
+        setUploadAnchorEl(null);
+      }
+    };
+
+    document.body.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.body.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [uploadAnchorEl]);
+
+  const isMenuOpen = Boolean(menuAnchorEl);
+  const isUploadOpen = Boolean(uploadAnchorEl);
+
+  const handleMenuClick = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+    setUploadAnchorEl(null); // Close the upload input when clicking on the menu icon
+  };
+
+  const handleMenuClose = () => setMenuAnchorEl(null);
+
+  const handleProfilePictureClick = () => {
+    setUploadAnchorEl(uploadAnchorEl ? null : document.body);
+    setMenuAnchorEl(null); // Close the dropdown menu when clicking on the profile picture
+  };
+
+  const handleImageUpload = (imageUrl) => {
+    // Save profile image URL to local storage
+    localStorage.setItem('profileImageUrl', imageUrl);
+    setProfileImageUrl(imageUrl);
+    setUploadAnchorEl(null);
+  };
 
   return (
     <AppBar
@@ -69,27 +109,27 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
               <LightModeOutlined sx={{ fontSize: '25px' }} />
             )}
           </IconButton>
-          <IconButton onClick={handleClick}>
+          <IconButton onClick={handleMenuClick}>
             <SettingsOutlined />
           </IconButton>
           <Menu
-            anchorEl={anchorEl}
-            open={isOpen}
-            onClose={handleClose}
+            anchorEl={menuAnchorEl}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           >
-            <MenuItem>
-              <ProfilePictureUpload />
-              {/* Include the ProfilePictureUpload component here */}
+            <MenuItem onClick={handleProfilePictureClick}>
+              Profile Picture
             </MenuItem>
-            <MenuItem onClick={handleClose}>My account</MenuItem>
-            <MenuItem onClick={handleClose}>Logout</MenuItem>
+            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+
+            <Logout />
           </Menu>
-          <Button onClick={handleClick}>
+          <Button>
             <Box
               component='img'
               alt='profile'
-              src={ProfileImage}
+              src={profileImageUrl}
               height='30px'
               width='30px'
               borderRadius='50%'
@@ -110,10 +150,22 @@ const Navbar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
                 {user.occupation}
               </Typography>
             </Box>
-            <ArrowDropDownOutlined
-              sx={{ color: theme.palette.secondary[300], fontSize: '25px' }}
-            />
           </Button>
+          {/* Show the file input */}
+          {isUploadOpen && (
+            <div
+              ref={(node) => setUploadAnchorEl(node)}
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: '0',
+                marginTop: '10px',
+                zIndex: 999,
+              }}
+            >
+              <FirebaseImageUpload onImageUpload={handleImageUpload} />
+            </div>
+          )}
         </FlexBetween>
       </Toolbar>
     </AppBar>
